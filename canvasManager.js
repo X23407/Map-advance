@@ -92,7 +92,7 @@ class canvasManager{
         this.canvas.addEventListener("click",(event) =>
         this.showPosition(event));
         this.canvas.addEventListener("touch",(event) =>
-        this.showPosition(event));
+            this.showPosition(event.touches[0]));
         window.addEventListener("keydown",(event) => {
             if (event.ctrlKey && event.key == "a"){
                 event.preventDefault()
