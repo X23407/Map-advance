@@ -14,6 +14,8 @@ class canvasManager{
         this.lastTouchDist = null;
         //this.width = this.canvas.width;
         //this.data.height = this.canvas.height;
+        this.touch_x = 0;
+        yhis.touch_y = 0;
         this.Record =  [
   // Central Reference
   { x: 0, y: 0, color: "green", label: "New Delhi" },
@@ -232,7 +234,7 @@ class canvasManager{
                     this.slabel.innerHTML ="Scale : "  +  2500 +" (max)";
                     return
                 }
-                this.initate(0,0)//this.data.origin_x,this.data.origin_y)
+                this.initate(this.touch_x,this.touch_y)//this.data.origin_x,this.data.origin_y)
             }
         }
 
@@ -300,8 +302,8 @@ class canvasManager{
             this.lastTouchDist = this.getTouchDist(e);
             let x = e.touches[0].clientX + e.touches[1].clientX;
             let y = e.touches[0].clientY + e.touches[1].clientY;
-            this.data.origin_x = x/2;
-            this.data.origin_y = x/2;
+            this.touch_x = x/2;
+            this.touch_y = y/2;
         } else if (e.touches.length === 4){
             this.debug();
         }
