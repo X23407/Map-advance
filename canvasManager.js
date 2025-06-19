@@ -72,17 +72,22 @@ class canvasManager{
             this.dragStartY = e.clientY - this.data.origin_y;});
 
         this.canvas.addEventListener("touchstart", (e) => {
-            this.isDragging = true;
-            this.dragStartX = e.clientX - this.data.origin_x;
-            this.dragStartY = e.clientY - this.data.origin_y;});
-        this.canvas.addEventListener("mousemove", (e) => {
-            if (this.isDragging) {
-                this.data.origin_x = e.clientX - this.dragStartX;
-                this.data.origin_y = e.clientY - this.dragStartY;
+            if (e.touches.length == 1){
+                let e1 = e.touches[0];
+                this.isDragging = true;
+                this.dragStartX = e1.clientX - this.data.origin_x;
+                this.dragStartY = e1.clientY - this.data.origin_y;
+            }})
+            
+        this.canvas.addEventListener("touchmove", (e) => {
+            if (e.touches.length == 1){
+                let e1 = e.touches[0];
+                this.data.origin_x = e1.clientX - this.dragStartX;
+                this.data.origin_y = e1.clientY - this.dragStartY;
                 this.initate(this.data.origin_x,this.data.origin_y);
             }
         });
-        this.canvas.addEventListener("touchmove", (e) => {
+        this.canvas.addEventListener("mousemove", (e) => {
             if (this.isDragging) {
                 this.data.origin_x = e.clientX - this.dragStartX;
                 this.data.origin_y = e.clientY - this.dragStartY;
@@ -91,8 +96,10 @@ class canvasManager{
         });
         this.canvas.addEventListener("click",(event) =>
         this.showPosition(event));
-        this.canvas.addEventListener("touch",(event) =>
-            this.showPosition(event.touches[0]));
+        this.canvas.addEventListener("touch",(event) => {
+            this.showPosition(event.touches[0]);
+        })
+
         window.addEventListener("keydown",(event) => {
             if (event.ctrlKey && event.key == "a"){
                 event.preventDefault()
@@ -258,13 +265,6 @@ class canvasManager{
             this.debugging = true;
         }
      }
-
-     renderChunkFormatter(renderChunk){
-        for (let chunk of renderChunk){
-        }
-     }
-
-
 
 
 }
