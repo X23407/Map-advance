@@ -87,14 +87,14 @@ class canvasManager{
             this.showPosition(event.touches[0]);
         })
 
-        window.addEventListener("keydown",(event) => {
-            if (event.ctrlKey && event.key == "a"){
-                event.preventDefault()
-                console.log("debugging")
-                this.debug()
+        // window.addEventListener("keydown",(event) => {
+        //     if (event.ctrlKey && event.key == "a"){
+        //         event.preventDefault()
+        //         console.log("debugging")
+        //         this.debug()
 
-            }
-        })
+        //     }
+        // })
             
 
         
@@ -232,9 +232,7 @@ class canvasManager{
                     this.slabel.innerHTML ="Scale : "  +  2500 +" (max)";
                     return
                 }
-                let x = e.touches[0].clientX + e.touches[1].clientX;
-                let y = e.touches[0].clientY + e.touches[1].clientY;
-                this.initate(x/2,y/2)
+                this.initate(this.data.origin_x,this.data.origin_y)
             }
         }
 
@@ -300,6 +298,12 @@ class canvasManager{
         } else if (e.touches.length === 2){
             e.preventDefault();
             this.lastTouchDist = this.getTouchDist(e);
+            let x = e.touches[0].clientX + e.touches[1].clientX;
+            let y = e.touches[0].clientY + e.touches[1].clientY;
+            this.data.origin_x = x/2;
+            this.data.origin_y = x/2;
+        } else if (e.touches.length === 4){
+            this.debug();
         }
 
      }
