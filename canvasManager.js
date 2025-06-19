@@ -215,7 +215,7 @@ class canvasManager{
             let newDist = this.getTouchDist(e);
             if (this.lastTouchDist){
                 let zoom = newDist/this.lastTouchDist;
-                this.data.scale *= 1;
+                this.data.scale *= zoom;
                 this.slabel.innerHTML =  Math.floor(this.data.scale*1000) ;
                 if (Math.floor(this.data.scale*1000) < 1){
                     this.data.scale = 1/1000;
