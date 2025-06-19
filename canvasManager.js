@@ -223,7 +223,6 @@ class canvasManager{
                 let zoom = newDist/this.lastTouchDist;
                 this.data.scale *= zoom;
                 this.slabel.innerHTML =  Math.floor(this.data.scale*1000) ;
-                this.lastTouchDist = newDist;
                 if (Math.floor(this.data.scale*1000) < 1){
                     this.data.scale = 1/1000;
                     this.slabel.innerHTML = "Scale : "  + 100 + "  (min)";
@@ -233,7 +232,9 @@ class canvasManager{
                     this.slabel.innerHTML ="Scale : "  +  2500 +" (max)";
                     return
                 }
-                this.initate(0,0)
+                let x = e.touches[0].clientX + e.touches[1].clientX;
+                let y = e.touches[0].clientY + e.touches[1].clientY;
+                this.initate(x/2,y/2)
             }
         }
 
@@ -281,7 +282,8 @@ class canvasManager{
             text += `<h10>Show Axis : ${this.data.showAxis}<br>`;
             text += `<h10>Show Border : ${this.data.showBorder}<br>`;
             let data = JSON.stringify(this.data.renderChunk)
-            text += `<h10>Chunk :${this.data.renderChunk.length} <span onclick = "${this.marker.copy(data)}">Copy<span>`;
+            text += `<h10>Chunk :${this.data.renderChunk.length} <span onclick = "${this.marker.copy(data)}">Copy<span><br>`;
+            text += "Version : 1.Alpha"
             document.getElementById("paraDebugg").innerHTML = text;
             this.dlabel.style.display = "flex" ;
             this.debugging = true;
@@ -298,9 +300,6 @@ class canvasManager{
         } else if (e.touches.length === 2){
             e.preventDefault();
             this.lastTouchDist = this.getTouchDist(e);
-        } else if(e.touches.length == 4){
-            e.preventDefault();
-            this.debug();
         }
 
      }
