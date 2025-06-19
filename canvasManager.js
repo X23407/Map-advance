@@ -104,6 +104,12 @@ class canvasManager{
         this.canvas.addEventListener("mouseleave", () => this.isDragging = false);
         this.canvas.addEventListener("touchcancel", () => this.isDragging = false);
         window.addEventListener("resize", (e) => this.resize())
+        window.addEventListener("touch",(e)=> {
+            if (e.touches.length === 4){
+                e.preventDefault();
+                this.debug()
+            }
+        })
 
         
     }
