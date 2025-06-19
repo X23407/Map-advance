@@ -11,6 +11,7 @@ class canvasManager{
         this.isDragging = false;
         this.debugging = false;
         this.rect = this.canvas.getBoundingClientRect();
+        this.lastTouchDist = null;
         //this.width = this.canvas.width;
         //this.data.height = this.canvas.height;
         this.Record =  [
@@ -71,22 +72,8 @@ class canvasManager{
             this.dragStartX = e.clientX - this.data.origin_x;
             this.dragStartY = e.clientY - this.data.origin_y;});
 
-        this.canvas.addEventListener("touchstart", (e) => {
-            if (e.touches.length == 1){
-                let e1 = e.touches[0];
-                this.isDragging = true;
-                this.dragStartX = e1.clientX - this.data.origin_x;
-                this.dragStartY = e1.clientY - this.data.origin_y;
-            }})
-            
-        this.canvas.addEventListener("touchmove", (e) => {
-            if (e.touches.length == 1){
-                let e1 = e.touches[0];
-                this.data.origin_x = e1.clientX - this.dragStartX;
-                this.data.origin_y = e1.clientY - this.dragStartY;
-                this.initate(this.data.origin_x,this.data.origin_y);
-            }
-        });
+        this.canvas.addEventListener("touchstart", (e) => this.touchstart(e))            
+        this.canvas.addEventListener("touchmove", (e) => this.touchmove(e));
         this.canvas.addEventListener("mousemove", (e) => {
             if (this.isDragging) {
                 this.data.origin_x = e.clientX - this.dragStartX;
@@ -217,6 +204,34 @@ class canvasManager{
         
     }
 
+    touchmove(e){
+        e.preventDefault();
+        if (e.touches.length == 1){
+            let e1 = e.touches[0];
+            this.data.origin_x = e1.clientX - this.dragStartX;
+            this.data.origin_y = e1.clientY - this.dragStartY;
+            this.initate(this.data.origin_x,this.data.origin_y);
+        }else if (e.touches.length === 2){
+            let newDist = this.getTouchDist(e);
+            if (this.lastTouchDist){
+                let zoom = newDist/this.lastTouchDist;
+                this.data.scale *= 1;
+                this.slabel.innerHTML =  Math.floor(this.data.scale*1000) ;
+                if (Math.floor(this.data.scale*1000) < 1){
+                    this.data.scale = 1/1000;
+                    this.slabel.innerHTML = "Scale : "  + 100 + "  (min)";
+                    return
+                } else if(Math.floor(this.data.scale*1000) > 2500){
+                    this.data.scale = 2500/1000;
+                    this.slabel.innerHTML ="Scale : "  +  2500 +" (max)";
+                    return
+                }
+                this.initate(0,0)
+            }
+        }
+
+    }
+
     zoom(e){
         e.preventDefault();
         //console.log(this.data.scale*this.data.width);
@@ -264,6 +279,29 @@ class canvasManager{
             this.dlabel.style.display = "flex" ;
             this.debugging = true;
         }
+     }
+
+     touchstart(e){
+        if (e.touches.length ===1){
+            e.preventDefault();
+            let e1 = e.touches[0];
+            this.isDragging = true;
+            this.dragStartX = e1.clientX - this.data.origin_x;
+            this.dragStartY = e1.clientY - this.data.origin_y;
+        } else if (e.touches.length === 2){
+            e.preventDefault();
+            this.lastTouchDist = this.getTouchDist(e);
+        } else if(e.touches.length == 4){
+            e.preventDefault();
+            this.debug();
+        }
+
+     }
+
+     getTouchDist(e){
+        let dx = e.touches[0].clientX - e.touches[1].clientX;
+        let dy = e.touches[0].clientY - e.touches[1].clientY;
+        return Math.sqrt(dx*dx + dy*dy);
      }
 
 
