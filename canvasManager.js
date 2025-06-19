@@ -225,14 +225,14 @@ class canvasManager{
                 this.slabel.innerHTML =  Math.floor(this.data.scale*1000) ;
                 if (Math.floor(this.data.scale*1000) < 1){
                     this.data.scale = 1/1000;
-                    this.slabel.innerHTML = "Scale : "  + 100 + "  (min)";
+                    this.slabel.innerHTML = "Scale : "  + 1 + "  (min)";
                     return
                 } else if(Math.floor(this.data.scale*1000) > 2500){
                     this.data.scale = 2500/1000;
                     this.slabel.innerHTML ="Scale : "  +  2500 +" (max)";
                     return
                 }
-                this.initate(this.data.origin_x,this.data.origin_y)
+                this.initate(0,0)//this.data.origin_x,this.data.origin_y)
             }
         }
 
