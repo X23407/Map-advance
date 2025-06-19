@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="canvasManager.js"></script>
+  <script src = "canvasShapeCreater.js"></script>
+  <script src="chunckSystem.js"></script>
+  <script src = "dataPasser.js"></script>
+  <meta charset="UTF-8">
+  <title>Interactive Map</title>
+  <style>
+    html, body {
+      margin: 1px;
+      overflow: hidden;
+    }
+    canvas {
+      background-color: aqua;
+      display: block;
+      touch-action: none;
+    }
+    #map-popup {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                color : white;
+                padding: 8px 12px;
+                border-radius: 5px;
+                background: rgba(0, 0, 0, 0.6);
+                /* pointer-events: none; */
+                z-index: 10;
+            }
+    .overlay{
+      position: inherit;
+      top:0;
+      left: 0;
+      width : 100vw;
+      height : 100vh;
+      background-color:rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99;
+      overflow: scroll;
+    }
+
+
+    .overlay-content{
+      width : 80vw;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      /* text-align: center; */
+      box-shadow: 0 0 10px black;
+      overflow-y: scroll;
+      overflow: scroll;
+      /* display : none; */
+    }
+
+  </style>
+</head>
+<body>
+  <div class = "overlay" id = "overlay">
+    <div class="overlay-content">
+      <h2>Debugg Mode</h2>
+      <p id = "paraDebugg" style="word-wrap:break-word;overflow: scroll;">This is a paragraph. of 22 x pp dsnksmdmk ddkfsnfos dosmda saoskma dossdm skdmaod aoinm jn         ddfnd fod sdods did asdosd sod </p>
+      <button onclick="document.getElementById('overlay').style.display = 'none'"></button>
+    </div>
+  </div>
+  <div id = "map-popup">
+        <div id = "scale">Scale : 100</div>
+        <div id = "coord">coord : 160 139</div>
+        <button onclick="document.getElementById('overlay').style.display = 'flex'">b1</button>
+
+    </div>
+<canvas id="mapCanvas" width="800" height="600"></canvas>
+
+<script>
+const canvas = document.getElementById("mapCanvas");
+canvas.width = window.innerWidth - window.innerWidth *(2.9/100);
+canvas.height = window.innerHeight - window.innerHeight *(5/100);
+
+data = new dataPasser();
+chunkHandler = new chunckSystem(data);
+marker = new canvasShapeCreater(data);
+canvasM = new canvasManager(marker,chunkHandler,data);
+data.marker = marker;
+canvasM.initate(0,0);
+document.getElementById("scale").innerHTML = data.scale*1000;
+
+// canvasM.debug();
+
+
+
+
+
+
+</script>
+</body>
+</html>
