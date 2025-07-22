@@ -349,6 +349,7 @@ class canvasManager{
                     this.slabel.innerHTML ="Scale : "  +  2500 +" (max)";
                     return
                 }
+                this.lastTouchDist = newDist;
                 this.initate(this.touch_x,this.touch_y)//this.data.origin_x,this.data.origin_y)
             }
         }
