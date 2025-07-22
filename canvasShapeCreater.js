@@ -54,7 +54,41 @@ class canvasShapeCreater{
 
     }
 
-    copy(text = "Nothing To Copy"){
+    copy(element,text = "Nothing To Copy"){
         navigator.clipboard.writeText(text);
+        alert(`Succesfully copied the chunk <br> ${text}`)
+        // element.innertext = "Copied"
+    }
+
+    dataImport(){
+        let input = document.createElement("input");
+        input.type = "file";
+        input.click();
+        input.addEventListener("change",(e)=>{
+            console.clear()
+            this.dataImportReal(e);
+        })
+    }
+
+    dataImportReal(event){
+        let file = event.target.files[0];
+        if (!file){
+            alert("No file has been selected");
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            let chunkData = e.target.result;
+            try{
+                chunkData = JSON.parse(chunkData);
+                console.log(chunkData);
+                this.data.chunkData = chunkData;
+            }catch(error){
+                console.log(error)
+            }
+        }
+        console.log(file);
+        reader.readAsText(file);
+
     }
 }
