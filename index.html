@@ -5,59 +5,72 @@
   <script src = "canvasShapeCreater.js"></script>
   <script src="chunckSystem.js"></script>
   <script src = "dataPasser.js"></script>
+  <script src="popUpManager.js"></script>
   <meta charset="UTF-8">
   <title>Interactive Map</title>
   <style>
-    html, body {
-      margin: 1px;
-      overflow: hidden;
-    }
-    canvas {
-      background-color: aqua;
-      display: block;
-      touch-action: none;
-    }
-    #map-popup {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                color : white;
-                padding: 8px 12px;
-                border-radius: 5px;
-                background: rgba(0, 0, 0, 0.6);
-                /* pointer-events: none; */
-                z-index: 10;
-            }
-    .overlay{
-      position: inherit;
-      top:0;
-      left: 0;
-      width : 100vw;
-      height : 100vh;
-      background-color:rgba(0, 0, 0, 0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 99;
-      overflow: scroll;
-    }
-
-
-    .overlay-content{
-      width : 80vw;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      /* text-align: center; */
-      box-shadow: 0 0 10px black;
-      overflow-y: scroll;
-      overflow: scroll;
-      /* display : none; */
-    }
+    
 
   </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!--Search-->
+  <div id="customPrompt" class="prompt-overlay">
+    <div class="prompt-box">
+      <div style = "color: aliceblue;">Enter Coords in form 0 0</div>
+      <input type="text" id="promptInput" placeholder="Search Here...." />
+      <input type="button" id = "prompt-switch-button" value = "Coords" onclick="canvasM.coord_switcher()">
+      <br />
+      <button onclick="popup.submitSearch()">Go!</button>
+      <button onclick="popup.submitSearch('close')">Cancel</button>
+      <button onclick="canvasM.nearestCity()">Nearest Place</button>
+      </div>
+  </div>
+
+  <!--Add new location-->
+  <div id="customPromptAdd" class="prompt-overlay">
+    <div class="prompt-box">
+      <div style = "color: aliceblue;">Add</div>
+      <div class = "form">
+        <label for="name" class = "add-label">Place Name</label>
+        <input type="text" id = "place-add" placeholder = "New Delhi" class = "add-input"> <br>
+        <label for="Coords" class = "add-label" style="margin-left: 10%;">Coords</label>
+        <input type="text" placeholder = "500 500" id = "coord-add" class = "add-input"> <br>
+        <label for="Color" class = "add-label">Color</label>
+        <input type="color" placeholder = "500 500" class = "add-input" id = "color-add" value = "green" style="margin-left: 5%;"> <br>
+      </div>
+      <button onclick="canvasM.addOkCancek('go')">Go!</button>
+      <button onclick="canvasM.addOkCancek('cancel')">Cancel</button>
+      <button onclick="canvasM.addOkCancek()">Add</button>
+      <!-- <button onclick="canvasM.submitSearch()">OK</button>
+      <button onclick="canvasM.submitSearch('close')">Cancel</button> -->
+      </div>
+  </div>
+
+  <!-- Rename location -->
+  <div id="customPromptRename" class="prompt-overlay">
+    <div class="prompt-box">
+      <div style = "color: aliceblue;">Rename</div>
+      <div class = "form">
+        <label for="name" class = "add-label">Old Name</label>
+        <input type="text" id = "place-old" placeholder = "Delhi" class = "add-input"> <br>
+        <label for="newName" class = "add-label" >New Name</label>
+        <input type="text" id = "place-new" placeholder = "New Delhi" class = "add-input"> <br>
+        <label for="Coords" class = "add-label" >New Coords</label>
+        <input type="text" placeholder = "500 500" id = "coord-new" class = "add-input"> <br>
+        <label for="Color" class = "add-label">Color</label>
+        <input type="color" placeholder = "500 500" class = "add-input" id = "color-new" value = "green" style="margin-left: 5%;"> <br>
+      </div>
+      <button onclick="canvasM.renameOkCancel('go')">Go!</button>
+      <button onclick="canvasM.renameOkCancel('cancel')">Cancel</button>
+      <button onclick="canvasM.renameOkCancel()">Add</button>
+      <!-- <button onclick="canvasM.submitSearch()">OK</button>
+      <button onclick="canvasM.submitSearch('close')">Cancel</button> -->
+      </div>
+  </div>
+
+
   <div class = "overlay" id = "overlay">
     <div class="overlay-content">
       <h2>Debugg Mode</h2>
@@ -69,6 +82,8 @@
         <div id = "scale">Scale : 100</div>
         <div id = "coord">coord : 160 139</div>
         <button onclick="document.getElementById('overlay').style.display = 'flex'">b1</button>
+        <input type="button" value = "Add" onclick="canvasM.addPoint()">
+        <input type="button" value="More" onclick="popup.popupCreater()">
 
     </div>
 <canvas id="mapCanvas" width="800" height="600"></canvas>
@@ -85,6 +100,9 @@ canvasM = new canvasManager(marker,chunkHandler,data);
 data.marker = marker;
 canvasM.initate(0,0);
 document.getElementById("scale").innerHTML = data.scale*1000;
+let popup = new popUpManager(data);
+popup.popupCreater()
+
 
 // canvasM.debug();
 
