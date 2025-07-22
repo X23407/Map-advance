@@ -6,6 +6,7 @@ class canvasManager{
         this.dlabel = document.getElementById("overlay");
         //this.data.scale = 1;
         // this.data.origin_y = 0;
+        this.pointSearched = false;
         this.dragStartX = 0;
         this.dragStartY = 0;
         this.isDragging = false;
@@ -15,10 +16,13 @@ class canvasManager{
         //this.width = this.canvas.width;
         //this.data.height = this.canvas.height;
         this.touch_x = 0;
-        yhis.touch_y = 0;
+        this.touch_y = 0;
+        this.lastPointSearch = "0 0";
+        this.lastPosition = [0,0]
+        this.poi = false
         this.Record =  [
   // Central Reference
-  { x: 0, y: 0, color: "green", label: "New Delhi" },
+  { x: 0, y: 0, color: "green", label: "Home" },
 
   // Core Metros
   { x: -1150, y: -1350, color: "purple", label: "Mumbai" },
@@ -62,6 +66,7 @@ class canvasManager{
         this.marker = marker;
         this.chunk = chunk;
         this.data = data;
+        this.searchMode = "coords"
         this.systemContent = {
             "axis" : false,
         }
@@ -89,14 +94,42 @@ class canvasManager{
             this.showPosition(event.touches[0]);
         })
 
-        // window.addEventListener("keydown",(event) => {
-        //     if (event.ctrlKey && event.key == "a"){
-        //         event.preventDefault()
-        //         console.log("debugging")
-        //         this.debug()
+        window.addEventListener("keydown",(event) => {
+            if (event.ctrlKey && event.key == "d"){
+                event.preventDefault()
+                console.log("debugging")
+                this.debug()
 
-        //     }
-        // })
+            }else if (event.ctrlKey && event.key == "a"){
+                event.preventDefault();
+                if (this.data.showBorder){
+                    this.data.showBorder = false;
+                } else {
+                    this.data.showBorder = true;
+                }
+                this.reload();        
+            } else if (event.ctrlKey && event.key == "r"){
+                event.preventDefault()
+                this.reload();
+            } else if(event.ctrlKey && event.key == "q"){
+                event.preventDefault();
+                this.pointSearcher()
+            }else if(event.ctrlKey && event.key == "s"){
+                event.preventDefault();
+                this.data.saveState()
+            } else if (event.ctrlKey && event.key == "e"){
+                event.preventDefault();
+                alert("Clearing all the data");
+                this.data.chunkData = {"0,0":[{"x":0,"y":0,"color":"green","label":"Home"}]};
+                this.reload();
+            } else if(event.ctrlKey && event.key == "E"){
+                event.preventDefault();
+                this.dataExporter()
+            } else if (event.ctrlKey && event.key == "i"){
+                event.preventDefault();
+                this.dataImport();
+            }
+        })
             
 
         
@@ -105,6 +138,12 @@ class canvasManager{
         this.canvas.addEventListener("touchend", () => this.isDragging = false);
         this.canvas.addEventListener("mouseleave", () => this.isDragging = false);
         this.canvas.addEventListener("touchcancel", () => this.isDragging = false);
+        document.getElementById("promptInput").addEventListener("keyup",(event) => {
+            this.keyHelper(event);
+        })
+        document.getElementById("place-old").addEventListener("keyup",(event) => {
+            this.keyHelper(event,true);
+        })
         window.addEventListener("resize", (e) => this.resize())
         window.addEventListener("touch",(e)=> {
             if (e.touches.length === 4){
@@ -119,32 +158,113 @@ class canvasManager{
 
 
 
-    initate(x,y){
+    initate(x = 0,y = 0,mode = false){
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.context.save();
         this.context.translate(this.data.origin_x, this.data.origin_y);
+        console.log("ddfd")
         this.context.scale(this.data.scale, this.data.scale);
-        this.draw(x,y);
+        this.draw(x,y,mode);
+        this.data.saveState();
         this.marker.line();
+        this.network();
         // this.showAxis(true);
         this.context.restore();
-        let temp = {};
-        // for  (let poi of this.Record){
-        //     // conforsole.log(poi)
-        //     let c = this.chunk.chunkFinder(poi.x,poi.y);
-        //     if (temp.hasOwnProperty(c)){
-        //         temp[c].push(poi);
-        //     } else{
-        //         temp[c] = [poi];
-
-        //     }
-
-        // }
-        // console.log(JSON.stringify(temp));
         
     }
-    draw(x,y){
+
+    reload(){
+        this.initate(10,10,"Reload")
+    }
+
+    initate2(x ,y){
+        this.data.scale = 1;
+        this.data.origin_x = -x+0.5*this.data.width;
+        this.data.origin_y = y + this.data.height*0.5;
+        this.clabel.innerHTML = `coord : ${x} ${y} ${this.chunk.chunkFinder(x,y)}`;
+        this.slabel.innerHTML = `Scale : 1000`
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.context.save();
+        this.context.translate(this.data.origin_x, this.data.origin_y);
+        // this.context.translate(10000,100);
+        this.context.scale(this.data.scale, this.data.scale);
+        this.draw2(x,y);
+        // this.marker.line();
+        // this.showAxis(true);
+        this.context.restore();
+        
+    }
+    network123(){
+        let data = [[-2200,700],[-1600,700],[-280,300],[0,0],[1300,-200],[1700,-400]];
+        for (let i in data){
+            if (i == data.length -1){
+                break
+            }
+            // console.log(next)
+            this.marker.line(data[i][0],data[i][1],data[Number(i) +1][0],data[Number(i) +1][1],"orange",[])
+            
+        }
+        this.marker.line(-286,-119,-247,-119,"orange",[])
+    }
+    network(){
+        let data = new Map();
+        // data.set([-2200,700],[[-1600,700]]);
+        data.set([-1600,700],[[-2200,700],[-901,620]])
+        data.set([-901,620],[[-1600,700],[-280,300],[0,800]])
+        data.set([-280,300],[[-901,620],[0,0]])
+        data.set([0,800],[[-280,300],[2000,1100]])
+        // console.log(JSON.stringify(Array.from(data)));
+        // console.log(JSON.stringify(data.entries()));
+        // console.log(data);
+        for (let [key,value] of data.entries()){
+            for (let i of value){
+                this.marker.line(key[0],key[1],i[0],i[1],"violet",[])
+            }
+        }
+        // let data = {
+        //     [-2200,700] : [[-1600,700]],
+        //     [-1600,700] : [[-280,300],[-1600,700]],
+        //     [-280,300]: [[-1600,700],[0,0]],
+        //     [0,0] : [[1300,-200]],
+        //     [1300,-200],[1700,-400]
+        // }
+    }
+    draw2(x,y){
+        // x = 10000
+        // y = 100
+        this.marker.circle(x,y,30,"black","Tantrum");
+        let renderChunk = this.chunk.chunkLoad(x,y);
+        // console.log(renderChunk)
+        this.data.renderChunk = renderChunk;
+        for (let chunk of renderChunk){
+            this.chunk.border(chunk);
+            if (this.data.chunkData.hasOwnProperty(chunk)){
+               
+                let pois = this.data.chunkData[chunk];
+                //  console.log(pois)
+                // console.log(JSON.stringify(pois))
+                // pois = [{"x":500,"y":450,"color":"teal","label":"Lucknow"},{"x":800,"y":200,"color":"brown","label":"Varanasi"}]
+                if (this.data.scale*1000 <= 250){
+                    // console.log(pois[0])
+                    let poi = pois[0];
+                    this.marker.circle(poi.x,poi.y,10,poi.color,poi.label);
+                } else {
+                    for (let poi of pois){
+                    // console.log(poi);
+                    this.marker.circle(poi.x,poi.y,10,poi.color,poi.label);
+                }
+
+                }
+                
+            }
+        
+    }}
+
+    draw(x,y,mode = "false"){
         let renderChunk = this.chunk.chunkNo(x,y);
+        if (mode == "Reload"){
+            renderChunk = this.data.renderChunk;
+        }
         this.data.renderChunk = renderChunk;
         for (let chunk of renderChunk){
             this.chunk.border(chunk);
@@ -152,34 +272,29 @@ class canvasManager{
                 let pois = this.data.chunkData[chunk];
                 // console.log(JSON.stringify(pois))
                 // pois = [{"x":500,"y":450,"color":"teal","label":"Lucknow"},{"x":800,"y":200,"color":"brown","label":"Varanasi"}]
-                if (this.data.scale*1000 <= 250){
+                if (this.data.scale*1000 < 100){
                     // console.log(pois[0])
+                    // console.log(pois);
                     let poi = pois[0];
-                    self.marker.circle(poi.x,poi.y,10,poi.color,poi.label);
+                    this.marker.circle(poi.x,poi.y,10,poi.color,poi.label);
                 } else {
                     for (let poi of pois){
                     // console.log(poi);
-                    self.marker.circle(poi.x,poi.y,10,poi.color,poi.label);
+                    this.marker.circle(poi.x,poi.y,10,poi.color,poi.label);
                 }
 
                 }
                 
             }
-
-        // this.showAxis()
-        // for (let poi of this.Record){
-        //     // console.log(poi);
-        //     self.marker.circle(poi.x,poi.y,10,poi.color,poi.label);
-        // }
-
         
     }}
 
     showPosition(event){
         const xScreen = event.clientX - this.rect.left;
         const yScreen = event.clientY - this.rect.top;
-        const xMap = (xScreen - this.data.origin_x) / this.data.scale;
+        const xMap = Math.round((xScreen - this.data.origin_x) / this.data.scale);
         const yMap = (yScreen - this.data.origin_y) / this.data.scale;
+        this.lastPosition = [Math.round(xMap),Math.round(yMap*-1)]
         this.clabel.innerHTML = `coord : ${Math.round(xMap)} ${Math.round(yMap)*-1} ${this.chunk.chunkFinder(xMap,yMap)}`;
         return
     }
@@ -271,7 +386,114 @@ class canvasManager{
 
         this.initate(this.data.origin_x,this.data.origin_y,x,y);
     }
-     debug(){
+
+    
+
+    keyHelper(event,bypass = false){
+        if (event.key == "Enter" && !bypass){
+            this.submitSearch();
+            return
+        }
+        if (this.searchMode == "coords" && !bypass){
+            return
+        }
+        let curText = event.srcElement.value;
+        if (curText.length < 3 || event.key == "Backspace" || event.key == "Delete"){
+            return
+        }
+        console.log(curText);
+        curText = curText.toLowerCase();
+        let relatedData = this.dataFinderByName(curText);
+        if (!relatedData){
+            return
+        }
+        console.log(relatedData)
+        event.srcElement.value = relatedData[0].label
+        this.poi = relatedData[0]
+        if (bypass){
+            document.getElementById("coord-new").value = this.poi.x + " " + this.poi.y;
+            document.getElementById("color-new").value = this.poi.color;
+        }
+
+    }
+
+
+    dataFinderByName(name){
+        if (!name || name.length < 3){
+            return
+        }
+        name = name.toLowerCase();
+        let relatedData = []
+        for (let i in this.data.chunkData){
+            let poi = this.data.chunkData[i];
+            for (let city of poi){
+                let cityName = city.label.toLowerCase()
+                if (cityName.includes(name)){
+                    relatedData.unshift(city)
+                }
+            }
+            if (relatedData.length >= 5){
+                break;
+            }
+        }
+        return relatedData;
+
+    }
+
+    nearestCity(){
+        let x = this.lastPosition[0];
+        let y = this.lastPosition[1];
+        // x = 1000;
+        // y = -1001;
+        console.log(x + "  " + y)
+        let renderChunk = this.chunk.nearChunk(x,y,20);
+        let distance = [];
+        let data = [];
+        for (let chunk of renderChunk){
+            if (this.data.chunkData.hasOwnProperty(chunk)){
+                let chunkData = this.data.chunkData[chunk];
+                for (let poi of chunkData){
+                    let x_dis = (poi.x - x)**2;
+                    let y_dis = (poi.y - y)**2;
+                    let dist = Math.sqrt(x_dis+y_dis);
+                    distance.unshift(dist);
+                    data.unshift(poi);
+                }
+            }
+        }
+        if (distance.length < 1){
+            alert(`No nearest location found around current position ${x} ${y} around 20,000 scale`);
+            return;
+        }
+        let min = Math.min(...distance)
+        let index = distance.indexOf(min);
+        let loc = data[index]
+        console.log(index);
+        console.log(loc);
+        if (this.searchMode === "coords"){
+            document.getElementById('promptInput').value = loc.x + " " + loc.y;
+        } else{
+            document.getElementById('promptInput').value = loc.label;
+        }
+        this.initate2(loc.x,loc.y)
+        
+        console.log(loc);
+    }
+
+    coord_switcher(){
+        let label = document.getElementById("prompt-switch-button");
+        if (this.searchMode == "coords"){
+            label.value = "Name";
+            this.searchMode = "Name";
+
+        } else{
+            label.value = "coords";
+            this.searchMode = "coords"
+        }
+    }
+
+
+    debug(){
         if (this.debugging){
             this.dlabel.style.display = "none" ;
             this.debugging = false;
@@ -282,12 +504,26 @@ class canvasManager{
             text += `<h10>Show Axis : ${this.data.showAxis}<br>`;
             text += `<h10>Show Border : ${this.data.showBorder}<br>`;
             let data = JSON.stringify(this.data.renderChunk)
-            text += `<h10>Chunk :${this.data.renderChunk.length} <span onclick = "${this.marker.copy(data)}">Copy<span><br>`;
+//             text += `
+//   Chunk: ${this.data.renderChunk.length}
+//   <span style="color: blue; cursor: pointer;" onclick="this.marker.copy(this, '${data}')">Copy</span><br>
+// `;
+            text += `
+              Chunk: ${this.data.renderChunk.length}
+              <span style="color: blue; cursor: pointer;" id = "span" onclick="${this.copyText()}">Copy</span><br>
+                `;
+            // text += `<h10>Chunk :${this.data.renderChunk.length} <span onclick = "this.marker.copy(this,'${data}')" color = "blue">Copy<span><br>`;
             text += "Version : 1.Alpha"
+            text += `<br>Width x height : ${this.data.width} x ${this.data.height}`
             document.getElementById("paraDebugg").innerHTML = text;
             this.dlabel.style.display = "flex" ;
             this.debugging = true;
         }
+     }
+
+     copyText(){
+        navigator.clipboard.writeText(JSON.stringify(this.data.renderChunk));
+        // alert("Current Loaded chunk has been copied");
      }
 
      touchstart(e){
@@ -315,6 +551,186 @@ class canvasManager{
         let dy = e.touches[0].clientY - e.touches[1].clientY;
         return Math.sqrt(dx*dx + dy*dy);
      }
+
+
+     addPoint(){
+    //    document.getElementById('promptInputAdd').value = this.lastPointSearch;
+       document.getElementById('customPromptAdd').style.display = 'flex'; 
+     }
+     addOkCancek(mode){
+        if (mode == "cancel"){
+            document.getElementById('customPromptAdd').style.display = 'none';
+            return 
+        }
+        let coord = document.getElementById("coord-add").value;
+        coord = coord.split(" ");
+        let n1 = Number(coord[0]);
+        let n2 = Number(coord[1]);
+        if (isNaN(n1) || isNaN(n2)){
+            alert("Enter a valid coordinate");
+            return
+        }
+        if (mode == "go"){
+            this.initate2(n1,n2)
+            return
+        }
+        let placeName = document.getElementById("place-add").value;
+        if (placeName.length <= 3){
+            alert("Enter a valid place name");
+            return
+        }
+        let chunk = this.chunk.chunkFinder(n1,n2)
+        let poi = {};
+        poi["x"] = n1;
+        poi["y"] = n2;
+        poi["color"] = document.getElementById("color-add").value;
+        poi["label"] = placeName;
+        // document.getElementById("chunk-add").value = chunk;
+        if (this.data.chunkData.hasOwnProperty(chunk)){
+            let chunkData = this.data.chunkData[chunk];
+            for (let city of chunkData){
+                if (city.x === poi.x && city.y == poi.y){
+                    alert(`${city.label} aleardy exust at given coord`);
+                    return;}
+            }
+            chunkData.unshift(poi);
+            this.data.chunkData[chunk] = chunkData; 
+
+        } else {
+            this.data.chunkData[chunk] = [poi]; 
+        }
+        this.initate2(poi.x,poi.y)
+        document.getElementById("customPromptAdd").style.display = "none";
+     }
+
+    rename(){
+        document.getElementById("customPromptRename").style.display = "flex";
+     }
+    
+     renameOkCancel(mode){
+        if (mode == "cancel"){
+            document.getElementById("customPromptRename").style.display = "none";
+            return
+        }
+        console.clear();
+        let newName =  document.getElementById("place-new").value;
+        console.log(newName);
+        
+        let name = document.getElementById("place-old").value;
+        if (newName){
+            if (newName.length <3){
+                alert("New Name shoul be atlest 3 char wide");
+                return
+            }else{
+                name = newName;
+            }
+        }
+        let coord = document.getElementById("coord-new").value;
+        coord = coord.split(" ");
+        let n1 = Number(coord[0]);
+        let n2 = Number(coord[1]);
+        if (isNaN(n1) || isNaN(n2)){
+            alert("Enter the coord in proper format");
+            return;
+        }
+        let color = document.getElementById("color-new").value;
+        let poi = {};
+        //{"x":0,"y":0,"color":"green","label":"New Delhi"}
+        poi["x"] = n1;
+        poi["y"] = n2;
+        poi["label"] = name;
+        poi["color"] = color;
+
+        //deleting previous data
+        this.deleteData();
+        
+        //adding new data
+        let chunk = this.chunk.chunkFinder(poi.x,poi.y);
+        let chunkData = false;
+        if (this.data.chunkData.hasOwnProperty(chunk)){
+            chunkData = this.data.chunkData[chunk];
+        }else{
+            chunkData = [];
+        }
+        chunkData.unshift(poi);
+        this.data.chunkData[chunk] = chunkData;
+
+        //conclusiom
+        document.getElementById("customPromptRename").style.display = "none";
+        this.initate2(poi.x,poi.y);
+
+     }
+
+    deleteData(){
+        if (this.poi == false){
+            return
+        }
+        let chunk = this.chunk.chunkFinder(this.poi.x,this.poi.y);
+        let chunkData = this.data.chunkData[chunk];
+        let id = chunkData.indexOf(this.poi);
+        chunkData.splice(id,1);
+        if (chunkData.length == 0){
+            delete this.data.chunkData[chunk];
+        }else{
+            this.data.chunkData[chunk] = chunkData;
+        }
+        this.poi = false;
+    }
+
+    // dataExporter(){
+    //     let result = confirm("A file will be downloade on your device. Do you want to confirm?")
+    //     if(!result){
+    //         return
+    //     }
+    //     let chunkData = JSON.stringify(this.data.chunkData);
+    //     const blob = new Blob([chunkData],{type : "application/json"});
+    //     const link = document.createElement("a");
+    //     link.href = URL.createObjectURL(blob);
+    //     let now = new Date();
+    //     let month = now.getMonth() +1;
+    //     if (month.toString().length == 1){
+    //         now = `${now.getDate()}-0${now.getMonth()+1}-${now.getFullYear()}`
+    //     }else{
+    //         now = `${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`
+    //     }
+    //     // now = `${now.getDate()}-${now.getMonth()+1}-${now.getFullYear()}`
+    //     console.log(now)
+    //     link.download = `${now}-Map-adv-data.json`
+    //     link.click();
+    //     console.log(chunkData)
+    // }
+
+    // dataImport(){
+    //     let input = document.createElement("input");
+    //     input.type = "file";
+    //     input.click();
+    //     input.addEventListener("change",(e)=>{
+    //         console.clear()
+    //         this.dataImportReal(e);
+    //     })
+    // }
+
+    // dataImportReal(event){
+    //     let file = event.target.files[0];
+    //     if (!file){
+    //         alert("No file has been selected");
+    //         return;
+    //     }
+    //     const reader = new FileReader();
+    //     reader.onload = (e) => {
+    //         let chunkData = e.target.result;
+    //         try{
+    //             chunkData = JSON.parse(chunkData);
+    //             console.log(chunkData);
+    //             this.data.chunkData = chunkData;
+    //         }catch(error){
+    //             console.log(error)
+    //         }
+    //     }
+    //     console.log(file);
+    //     reader.readAsText(file);
+
+    // }
 
 
 }
