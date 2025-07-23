@@ -19,7 +19,8 @@ class canvasManager{
         this.touch_y = 0;
         this.lastPointSearch = "0 0";
         this.lastPosition = [0,0]
-        this.poi = false
+        this.poi = false;
+        this.lastTouch_x = 0;
         this.Record =  [
   // Central Reference
   { x: 0, y: 0, color: "green", label: "Home" },
@@ -79,7 +80,18 @@ class canvasManager{
             this.dragStartX = e.clientX - this.data.origin_x;
             this.dragStartY = e.clientY - this.data.origin_y;});
 
-        this.canvas.addEventListener("touchstart", (e) => this.touchstart(e))            
+        this.canvas.addEventListener("touchstart", (e) => {
+            //console.log(e)
+            this.touchstart(e);
+            this.showPosition(e.touches[0]);
+            if (popup.main_div){
+                popup.main_div.remove();
+                popup.main_div = false;
+            }
+            
+            
+        }
+        )            
         this.canvas.addEventListener("touchmove", (e) => this.touchmove(e));
         this.canvas.addEventListener("mousemove", (e) => {
             if (this.isDragging) {
@@ -91,7 +103,11 @@ class canvasManager{
         this.canvas.addEventListener("click",(event) =>
         this.showPosition(event));
         this.canvas.addEventListener("touch",(event) => {
-            this.showPosition(event.touches[0]);
+            popup.main_div.remove();
+            popup.main_div = false;
+            console.log('touch')
+            
+            
         })
 
         window.addEventListener("keydown",(event) => {
@@ -135,7 +151,10 @@ class canvasManager{
         
 
         this.canvas.addEventListener("mouseup", () => this.isDragging = false);
-        this.canvas.addEventListener("touchend", () => this.isDragging = false);
+        this.canvas.addEventListener("touchend", (e) => {
+            this.isDragging = false,
+            this.swipeDetection(e)
+        });
         this.canvas.addEventListener("mouseleave", () => this.isDragging = false);
         this.canvas.addEventListener("touchcancel", () => this.isDragging = false);
         document.getElementById("promptInput").addEventListener("keyup",(event) => {
@@ -162,7 +181,7 @@ class canvasManager{
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.context.save();
         this.context.translate(this.data.origin_x, this.data.origin_y);
-        console.log("ddfd")
+        //console.log("ddfd")
         this.context.scale(this.data.scale, this.data.scale);
         this.draw(x,y,mode);
         this.data.saveState();
@@ -326,11 +345,27 @@ class canvasManager{
         this.systemContent["axis"] = true;
         
     }
+    
+    swipeDetection(e){
+        //console.log(e.changedTouches[0].clientX)
+        let x = e.changedTouches[0].clientX
+        if ((this.lastTouch_x - x > 50) && this.lastTouch_x >= 0.85*window.innerWidth){
+            //console.log("swipe peft");
+            popup.popupCreater();
+        }
+        
+    }
 
     touchmove(e){
         e.preventDefault();
         if (e.touches.length == 1){
             let e1 = e.touches[0];
+            let x = e1.clientX
+            if ((this.lastTouch_x - x > 50) && this.lastTouch_x >= 0.85 * window.innerWidth) {
+                //console.log("swipe peft");
+                popup.popupCreater();
+                
+            }
             this.data.origin_x = e1.clientX - this.dragStartX;
             this.data.origin_y = e1.clientY - this.dragStartY;
             this.initate(this.data.origin_x,this.data.origin_y);
@@ -532,8 +567,11 @@ class canvasManager{
             e.preventDefault();
             let e1 = e.touches[0];
             this.isDragging = true;
+            //console.log(e1.clientX)
             this.dragStartX = e1.clientX - this.data.origin_x;
             this.dragStartY = e1.clientY - this.data.origin_y;
+            this.lastTouch_x = e1.clientX;
+            //console.log(typeof(e1.clientX))
         } else if (e.touches.length === 2){
             e.preventDefault();
             this.lastTouchDist = this.getTouchDist(e);
@@ -541,6 +579,7 @@ class canvasManager{
             let y = e.touches[0].clientY + e.touches[1].clientY;
             this.touch_x = x/2;
             this.touch_y = y/2;
+            this.isDragging = false;
         } else if (e.touches.length === 4){
             this.debug();
         }
