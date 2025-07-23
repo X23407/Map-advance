@@ -54,8 +54,7 @@ canvas {
   top: 0; left: 0; right: 0; bottom: 0;
   background: none;
   display: none; /* Hidden by default */
-  justify-content: center;
-  align-items: center;
+  z-index: 10;
 }
 
 .prompt-box {
@@ -122,6 +121,7 @@ canvas {
   z-index: 5;
 }
 
+
 .prompt-box-popup{
   background:  rgb(74, 70, 70);
   padding: 20px;
@@ -143,4 +143,67 @@ canvas {
 
 .show-button{
   font-size: large;
+  width:10ch;
+}
+@media(min-width: 1001px){
+  .prompt-overlay{
+    justify-content: center;
+    align-items: center;
+  }
+}
+@media (max-width: 1000px) {
+  .prompt-button {
+    color: green;
+    width: 40vw;
+    font-size: 5vw;
+    
+  }
+  #scale{
+    font-size: 2vw;
+  }
+  #coord{
+    font-size: 2vw;
+  }
+  #map-popup{
+    width: 30vw;
+  }
+  #promptInput{
+    font-size:3vw;
+    margin-top: 2vh;
+    margin-bottom:1vh;
+  }
+  #prompt-switch-button{
+    font-size: 3vw;
+    margin-top: 1.5vh;
+    margin-bottom: 1vh;
+  }
+  .show-button{
+    width:20vw;
+    font-size: 5vw;
+  }
+  .prompt-overlay{
+    padding-top: 10vh;
+    padding-left: 20vw;
+    height: fit-content;
+  }
+  .prompt-box{
+    width: 60vw;
+    padding-top: 0px;
+    border: solid 1vw darkcyan;
+    border-radius: 50px;
+  }
+  .add-label{
+    font-size: 3vw;
+  }
+  .add-input{
+    font-size: 3vw;
+  }
+  .overlay-btn{
+    font-size: 3vw;
+    border-radius: 10px;
+  }
+  .heading{
+    font-size:2vh;
+    padding-top: 1vh;
+  }
 }
