@@ -7,6 +7,10 @@ class popUpManager{
     }
 
     popupCreater(){
+        if (this.main_div) {
+            return
+            
+        }
         this.main_div = document.createElement("div");
         // this.main_div.className = "prompt-overlay";
         this.main_div.className ="prompt-more-optn"
@@ -36,10 +40,39 @@ class popUpManager{
         // this.buttonCreater("Rename",this.rename,true);
         this.buttonCreater(this.data.mode,this.changeMode,true)
         this.showAxisBorder()
+        
+        this.context_div.addEventListener("touchmove",(e)=>{
+            this.buttonSelected = false;
+            for (let widget of this.context_div.children){
+                let rect = widget.getBoundingClientRect();
+                let e1 = e.touches[0];
+                if (e1.clientY > rect.top && e1.clientY < rect.top + rect.height){
+                    //console.log("changing")
+                    
+                    widget.style.backgroundColor = "cyan";
+                    this.buttonSelected = widget;
+                }else{
+                    widget.style.backgroundColor = "white"
+                    
+                }
+                //console.log(e.clientY + "   "+ rect.top)
+                
+                
+                //.log(rect)
+            }
+            //console.log(e.touches[0].clientY+ "  " + "apple")
+        })
+        this.context_div.addEventListener("touchend",(e) => {
+            if (this.buttonSelected){
+                this.buttonSelected.click();
+                this.buttonSelected = false;
+            }
+        })
 
     }
 
     buttonCreater(key = "button-1",value = canvasM.dataExporter,local = false){
+        
         let btn = document.createElement("input");
         btn.type = "button";
         // val//ue = canvasM.dataExporter;
@@ -55,6 +88,8 @@ class popUpManager{
                 // canvasM.dataExporter();
                 value.bind(canvasM)();
             }}
+        
+        
         // this.context_div.innerHTML += "<br>"
         // this.context_div.appendChild(document.createElement("br"))
         this.context_div.appendChild(line_add)
@@ -68,8 +103,8 @@ class popUpManager{
         let showAxis = document.createElement("input");
         showAxis.type = "button";
         showAxis.value = "Axis";
+       // showAxis.style.width = "10ch";
         showAxis.className = "show-button"
-        showAxis.style.width = "10ch";
         if (this.data.showAxis == true){
             showAxis.style.backgroundColor = "lime"
         }else{
@@ -93,7 +128,7 @@ class popUpManager{
         showBorder.type = "button";
         showBorder.value = "Border";
         showBorder.className = "show-button"
-        showBorder.style.width = "10ch";
+        //showBorder.style.width = "10ch";
         showBorder.onclick = (e) => {
             if (this.data.showBorder == true){
                 this.data.showBorder = false;
@@ -116,7 +151,8 @@ class popUpManager{
     }
 
     hidePopUp(){
-        this.main_div.style.display = "none";
+        this.main_div.remove();
+        this.main_div = false;
         
     }
     clearData(){
