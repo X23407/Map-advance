@@ -18,20 +18,20 @@
   <!--Search-->
   <div id="customPrompt" class="prompt-overlay">
     <div class="prompt-box">
-      <div style = "color: aliceblue;">Enter Coords in form 0 0</div>
+      <div style = "color: aliceblue;" class = "heading">Enter Coords in form 0 0</div>
       <input type="text" id="promptInput" placeholder="Search Here...." />
       <input type="button" id = "prompt-switch-button" value = "Coords" onclick="canvasM.coord_switcher()">
       <br />
-      <button onclick="popup.submitSearch()">Go!</button>
-      <button onclick="popup.submitSearch('close')">Cancel</button>
-      <button onclick="canvasM.nearestCity()">Nearest Place</button>
+      <button onclick="popup.submitSearch()" class = "overlay-btn">Go!</button>
+      <button onclick="popup.submitSearch('close')" class = "overlay-btn">Cancel</button>
+      <button onclick="canvasM.nearestCity()" class = "overlay-btn">Nearest Place</button>
       </div>
   </div>
 
   <!--Add new location-->
   <div id="customPromptAdd" class="prompt-overlay">
     <div class="prompt-box">
-      <div style = "color: aliceblue;">Add</div>
+      <div style = "color: aliceblue;" class = "heading">Add</div>
       <div class = "form">
         <label for="name" class = "add-label">Place Name</label>
         <input type="text" id = "place-add" placeholder = "New Delhi" class = "add-input"> <br>
@@ -40,9 +40,9 @@
         <label for="Color" class = "add-label">Color</label>
         <input type="color" placeholder = "500 500" class = "add-input" id = "color-add" value = "green" style="margin-left: 5%;"> <br>
       </div>
-      <button onclick="canvasM.addOkCancek('go')">Go!</button>
-      <button onclick="canvasM.addOkCancek('cancel')">Cancel</button>
-      <button onclick="canvasM.addOkCancek()">Add</button>
+      <button onclick="canvasM.addOkCancek('go')" class = "overlay-btn">Go!</button>
+      <button onclick="canvasM.addOkCancek('cancel')" class = "overlay-btn">Cancel</button>
+      <button onclick="canvasM.addOkCancek()" class = "overlay-btn">Add</button>
       <!-- <button onclick="canvasM.submitSearch()">OK</button>
       <button onclick="canvasM.submitSearch('close')">Cancel</button> -->
       </div>
@@ -51,7 +51,7 @@
   <!-- Rename location -->
   <div id="customPromptRename" class="prompt-overlay">
     <div class="prompt-box">
-      <div style = "color: aliceblue;">Rename</div>
+      <div style = "color: aliceblue;" class = "heading">Rename</div>
       <div class = "form">
         <label for="name" class = "add-label">Old Name</label>
         <input type="text" id = "place-old" placeholder = "Delhi" class = "add-input"> <br>
@@ -62,9 +62,9 @@
         <label for="Color" class = "add-label">Color</label>
         <input type="color" placeholder = "500 500" class = "add-input" id = "color-new" value = "green" style="margin-left: 5%;"> <br>
       </div>
-      <button onclick="canvasM.renameOkCancel('go')">Go!</button>
-      <button onclick="canvasM.renameOkCancel('cancel')">Cancel</button>
-      <button onclick="canvasM.renameOkCancel()">Add</button>
+      <button onclick="canvasM.renameOkCancel('go')" class = "overlay-btn">Go!</button>
+      <button onclick="canvasM.renameOkCancel('cancel')" class = "overlay-btn">Cancel</button>
+      <button onclick="canvasM.renameOkCancel()" class = "overlay-btn">Add</button>
       <!-- <button onclick="canvasM.submitSearch()">OK</button>
       <button onclick="canvasM.submitSearch('close')">Cancel</button> -->
       </div>
@@ -81,9 +81,9 @@
   <div id = "map-popup">
         <div id = "scale">Scale : 100</div>
         <div id = "coord">coord : 160 139</div>
-        <button onclick="document.getElementById('overlay').style.display = 'flex'">b1</button>
-        <input type="button" value = "Add" onclick="canvasM.addPoint()">
-        <input type="button" value="More" onclick="popup.popupCreater()">
+        
+        <input type="button" value = "Add" onclick="canvasM.addPoint()" class="overlay-btn">
+        <input type="button" value="More" onclick="popup.popupCreater()" class = "overlay-btn">
 
     </div>
 <canvas id="mapCanvas" width="800" height="600"></canvas>
